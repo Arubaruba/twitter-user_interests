@@ -1,5 +1,9 @@
 body {
-    background: #798A84;
+    background: #0E2430;
+}
+
+.message {
+    color: #fff;
 }
 
 .search-area {
@@ -7,7 +11,7 @@ body {
 }
 
 .search-box {
-    background: #70A595;
+    background: #E8D5B9;
     border-radius: 3px;
     padding: 10px;
     margin: 0 auto;
@@ -18,18 +22,18 @@ body {
     border: none;
     border-radius: 3px !important;
     padding: 27px 10px !important;
-    font-size: 20px !important;
-    color: #798A84;
+    font-size: 14px !important;
+    color: #DCE9BE;
     margin: 0 !important;
 }
 
 .go-button {
-    background: #D08D1F !important;
+    background: #99173C !important;
     font-weight: bold !important;
     border-radius: 3px;
     padding: 27px;
     margin: 0 auto;
-    font-size: 20px;
+    font-size: 14px;
     width: 100% !important;
 }
 
@@ -40,7 +44,7 @@ body {
 .search_found_user_area {
     margin-top: 10px;
     margin-bottom: 30px;
-    background: #8EA5AD;
+    background: #E8D5B7;
     padding: 27px !important;
     border-radius: 3px !important;
 }
@@ -50,23 +54,25 @@ body {
     border-radius: 3px;
     background-color: #fff;
     width: 100%;
+    border: 2px solid #333;
+    margin-bottom: 10px;
 }
 
 .profile-name {
     color: inherit;
     font-weight: bold;
     font-size: 40px;
-    line-height: 128px;
+    line-height: 140px;
     text-decoration: underline;
 }
 
 .interest {
-    padding: 10px;
-    background: #D08D1F;
-    margin: 14px 14px 0 14px;
-    height: 58px;
-    font-size: 25px;
-    border-radius: 3px;
+    padding: 5px;
+    background: #fae6c7;
+    margin: 4px 14px 0 14px;
+    height: 30px;
+    font-size: 14px;
+    /* border-radius: 3px; */
 }
 
 .interest .name {
@@ -74,5 +80,6 @@ body {
 }
 
 .interest.dislike {
-    background: #e05a24;
+    background: #d5c3a9;
 }
+

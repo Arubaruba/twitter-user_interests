@@ -25,7 +25,6 @@ Router.route('/user/:screenName', function () {
         if (err) {
             self.render('message', {data: {message: 'User data for user \"' + screenName + '\" couldn\'t be retrieved.'}});
         } else {
-            console.log(JSON.stringify(results.interestData));
             self.render('search_found_user', {
                 data: {
                     userName: results.userData.data.name,
@@ -66,6 +65,10 @@ if (Meteor.isServer) {
     var natural = Meteor.npmRequire('natural');
     var TfIdf = natural.TfIdf;
     var sentiment = Meteor.npmRequire('sentiment');
+    var wordnet = new natural.WordNet();
+    wordnet.lookup('gun', function (res) {
+        console.log(res);
+    });
 
     Meteor.startup(function () {
         Accounts.loginServiceConfiguration.remove({
@@ -79,11 +82,15 @@ if (Meteor.isServer) {
         });
     });
 
-    var MAX_ITEMS_PER_CATEGORY = 5;
+    var MAX_ITEMS_PER_CATEGORY = 10;
+    var NUM_TWEETS_TO_SCAN = 30;
 
     Meteor.methods({
         getInterests: function (screenName) {
-            var recentTweets = twitter.get('statuses/user_timeline.json', {screen_name: screenName, count: 20});
+            var recentTweets = twitter.get('statuses/user_timeline.json', {
+                screen_name: screenName,
+                count: NUM_TWEETS_TO_SCAN
+            });
             var tfidf = new TfIdf();
 
             var tweetText = recentTweets.data.map(function (tweet) {

@@ -1,4 +1,5 @@
 {
   "natural": "0.2.1",
-  "sentiment": "1.0.2"
+  "sentiment": "1.0.2",
+  "WNdb": "3.1.1"
 }
