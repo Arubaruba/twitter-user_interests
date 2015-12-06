@@ -1,4 +1,4 @@
 secrets.js
-/packages
 smart.lock
 .idea
+node_modules

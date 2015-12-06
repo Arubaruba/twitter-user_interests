@@ -1,8 +1,8 @@
-Router.route('/', function () {
+Router.route('/login', function () {
     this.render('login');
 });
 
-Router.route('/users', function () {
+Router.route('/', function () {
     this.layout('user_interests');
     this.render('message', {data: {message: 'Search for a user to get started'}});
 });
@@ -24,6 +24,8 @@ Router.route('/user/:screenName', function () {
     }, function (err, results) {
         if (err) {
             self.render('message', {data: {message: 'User data for user \"' + screenName + '\" couldn\'t be retrieved.'}});
+        } else if (results.interestData.topPositiveWords.length == 0 && results.interestData.topNegativeWords.length == 0) {
+            self.render('message', {data: {message: 'No data for user \"' + screenName + '\"'}});
         } else {
             self.render('search_found_user', {
                 data: {
@@ -34,6 +36,8 @@ Router.route('/user/:screenName', function () {
                     negativeInterests: results.interestData.topNegativeWords
                 }
             });
+
+
         }
     });
     self.render('message', {data: {message: 'Getting user data for user \"' + screenName + '\"'}});
@@ -65,10 +69,10 @@ if (Meteor.isServer) {
     var natural = Meteor.npmRequire('natural');
     var TfIdf = natural.TfIdf;
     var sentiment = Meteor.npmRequire('sentiment');
-    var wordnet = new natural.WordNet();
-    wordnet.lookup('gun', function (res) {
-        console.log(res);
-    });
+    //var wordnet = new natural.WordNet();
+    //wordnet.lookup('gun', function (res) {
+    //    console.log(res);
+    //});
 
     Meteor.startup(function () {
         Accounts.loginServiceConfiguration.remove({
@@ -100,9 +104,11 @@ if (Meteor.isServer) {
                 }
             });
 
-            tfidf.addDocument(tweetText.reduce(function (acc, next) {
+            var combinedTweetText = tweetText.reduce(function (acc, next) {
                 return acc + ' ' + next;
-            }, ''));
+            }, '');
+
+            tfidf.addDocument(combinedTweetText);
 
             var wordImportance = tfidf.listTerms(0);
 
@@ -118,12 +124,30 @@ if (Meteor.isServer) {
             var topPositiveWords = [];
             var topNegativeWords = [];
 
-            wordImportance.forEach(function (importance) {
-                if (topPositiveWords.length < MAX_ITEMS_PER_CATEGORY && positiveWords.indexOf(importance.term) != -1)
-                    topPositiveWords.push(importance.term);
+            function numberOfOccurrences(s1, s2) {
+                return (s2.length - s2.replace(new RegExp(s1, "g"), '').length) / s1.length;
+            }
 
-                if (topNegativeWords.length < MAX_ITEMS_PER_CATEGORY && negativeWords.indexOf(importance.term) != -1)
-                    topNegativeWords.push(importance.term);
+            function getSearchLink(term) {
+                return 'https://twitter.com/search?f=tweets&q=' + encodeURIComponent(term) + '%20from%3' + encodeURIComponent(screenName) + '&src=typd';
+            }
+
+            wordImportance.forEach(function (importance) {
+                if (topPositiveWords.length < MAX_ITEMS_PER_CATEGORY && positiveWords.indexOf(importance.term) != -1) {
+                    topPositiveWords.push({
+                        occurrences: numberOfOccurrences(importance.term, combinedTweetText),
+                        term: importance.term,
+                        searchLink: getSearchLink(importance.term)
+                    });
+                }
+
+                if (topNegativeWords.length < MAX_ITEMS_PER_CATEGORY && negativeWords.indexOf(importance.term) != -1) {
+                    topNegativeWords.push({
+                        occurrences: numberOfOccurrences(importance.term, combinedTweetText),
+                        term: importance.term,
+                        searchLink: getSearchLink(importance.term)
+                    });
+                }
             });
 
             return {topPositiveWords: topPositiveWords, topNegativeWords: topNegativeWords};

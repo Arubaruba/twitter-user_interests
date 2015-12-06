@@ -6,8 +6,23 @@ body {
     color: #fff;
 }
 
-.search-area {
-    margin-top: 50px;
+.search-bar {
+    margin-top: 30px !important;
+    margin-bottom: 30px !important;
+}
+
+.app-title {
+    margin-bottom: 0 !important;
+    font-size: 60px;
+    text-shadow: 1px 1px 0 #fff;
+    color: #99173C;
+    font-weight: bold;
+}
+
+.app-description {
+    margin-bottom: 20px;
+    font-size: 18px;
+    color: #fff;
 }
 
 .search-box {
@@ -18,11 +33,11 @@ body {
 }
 
 .search-field {
+    font-size: 30px !important;
     background: #fff;
     border: none;
     border-radius: 3px !important;
     padding: 27px 10px !important;
-    font-size: 14px !important;
     color: #DCE9BE;
     margin: 0 !important;
 }
@@ -31,9 +46,9 @@ body {
     background: #99173C !important;
     font-weight: bold !important;
     border-radius: 3px;
-    padding: 27px;
+    padding: 24px;
     margin: 0 auto;
-    font-size: 14px;
+    font-size: 24px;
     width: 100% !important;
 }
 
@@ -62,17 +77,25 @@ body {
     color: inherit;
     font-weight: bold;
     font-size: 40px;
-    line-height: 140px;
+    line-height: 120px;
     text-decoration: underline;
 }
 
 .interest {
     padding: 5px;
     background: #fae6c7;
-    margin: 4px 14px 0 14px;
+    margin: 4px 14px 0 14px !important;
     height: 30px;
     font-size: 14px;
     /* border-radius: 3px; */
+}
+
+.interest-title {
+    color: #99173C;
+    font-size: 30px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 15px !important;
 }
 
 .interest .name {

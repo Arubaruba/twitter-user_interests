@@ -6,18 +6,26 @@
 </body>
 
 <template name="login">
+
+    <div class=" profile-picture">
+        <img src="{{profileImage}}" alt="">
+    </div>
     userid: ( {{userId}} )
     <button id="twitter-login">Twitter Login</button>
 </template>
 
 <template name="user_interests">
-    <div class="row search-area">
+
+
+    <div>
         <div class="large-2 columns"><br></div>
         <div class="large-8 columns">
-            <div class="row">
+            <div class="row"><h1 class="app-title">Twitter <i>TLDR;</i></h1>
+
+                <div class="app-description">Get a quick overview of recent Tweets</div>
                 <form action="">
                     <div class="large-9 columns search-box">
-                        <input class="search-field" type="text" placeholder="Enter Screen Name">
+                        <input class="search-field" type="text" placeholder="Enter Twitter Username">
                     </div>
                     <div class="large-3 columns go-button-column">
                         <button type="submit" class="go-button">GO!</button>
@@ -39,31 +47,25 @@
 </template>
 
 <template name="search_found_user">
-    <div class="large-12 columns search_found_user_area">
-        <div class="row">
-            <div class="large-9 columns profile-name"><a href={{profileLink}} target="_blank"
-                                                         class="profile-name">{{userName}}</a>
+    <br>
+    <div class="large-12 columns search_found_user">
+        <div class="row search_found_user_area">
+            <div class="large-6 columns">
+                <div class="row interest-title">Positive</div>
+                {{#each positiveInterests}}
+                    <div class="row interest">
+                        <div class="large-10 columns name"><a target="_blank" href={{searchLink}}>{{term}}</a> ({{occurrences}})</div>
+                    </div>
+                {{/each}}
             </div>
-            <div class="large-3 columns">
-                <div class=" profile-picture">
-                    <img src="{{profileImage}}" alt="">
-                </div>
+            <div class="large-6 columns">
+                <div class="row interest-title">Negative</div>
+                {{#each negativeInterests}}
+                    <div class="row interest dislike">
+                        <div class="large-10 columns name"><a target="_blank" href={{searchLink}}>{{term}}</a> ({{occurrences}})</div>
+                    </div>
+                {{/each}}
             </div>
-        </div>
-
-        <div class="row">
-            {{#each positiveInterests}}
-                <div class="interest">
-                    <div class="large-6 columns">Positive Interest</div>
-                    <div class="large-6 columns name">{{this}}</div>
-                </div>
-            {{/each}}
-            {{#each negativeInterests}}
-                <div class="interest dislike">
-                    <div class="large-6 columns">Negative Interest</div>
-                    <div class="large-6 columns name">{{this}}</div>
-                </div>
-            {{/each}}
         </div>
     </div>
 </template>
