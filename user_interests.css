@@ -39,6 +39,7 @@ body {
 
 .search_found_user_area {
     margin-top: 10px;
+    margin-bottom: 30px;
     background: #8EA5AD;
     padding: 27px !important;
     border-radius: 3px !important;

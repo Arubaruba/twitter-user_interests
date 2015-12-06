@@ -7,26 +7,45 @@ Router.route('/users', function () {
     this.render('message', {data: {message: 'Search for a user to get started'}});
 });
 
-Router.route('/user/:id', function () {
+Router.route('/user/:screenName', function () {
+    var screenName = this.params.screenName;
     this.layout('user_interests');
-    this.call('getUser', this.params.screenName, function(err, userData) {
+    var self = this;
+
+    async.parallel({
+        userData: function (callback) {
+            // Try to get users' data by screen name
+            Meteor.call('getUser', screenName, callback);
+        },
+        interestData: function (callback) {
+            // Try to get users' data by screen name
+            Meteor.call('getInterests', screenName, callback);
+        }
+    }, function (err, results) {
         if (err) {
-            this.render('message', {data: {message: 'User data for user \"' + this.params.screenName + '\" couldn\'t be retrieved.'}});
+            self.render('message', {data: {message: 'User data for user \"' + screenName + '\" couldn\'t be retrieved.'}});
         } else {
-            this.render('search_found_user', {data: userData})
+            console.log(JSON.stringify(results.interestData));
+            self.render('search_found_user', {
+                data: {
+                    userName: results.userData.data.name,
+                    profileImage: results.userData.data.profile_image_url.replace('_normal', '_400x400'),
+                    profileLink: 'https://twitter.com/' + screenName,
+                    positiveInterests: results.interestData.topPositiveWords,
+                    negativeInterests: results.interestData.topNegativeWords
+                }
+            });
         }
     });
+    self.render('message', {data: {message: 'Getting user data for user \"' + screenName + '\"'}});
 });
 
 if (Meteor.isClient) {
-    // counter starts at 0
-    //Session.setDefault('counter', 0);
-    //Session.setDefault('userId', 0);
-
     Template.user_interests.events ({
-        "click .go-button": function () {
+        "click .go-button": function (target) {
+            target.preventDefault();
             var screenName = $('.search-field').val();
-            if (text) {
+            if (screenName) {
                 Router.go('/user/' + screenName);
             } else {
                 alert('Field cannot be empty!')
@@ -39,35 +58,14 @@ if (Meteor.isClient) {
             return Session.get('searchUserNameInput');
         }
     });
-
-    Template.search_found_user.helpers({
-        userName: 'Barack Obama',
-        imageUrl: 'https://pbs.twimg.com/profile_images/451007105391022080/iu1f7brY.png',
-        interests: [
-            {name: 'Golf', like: true},
-            {name: 'Smoking', like: true},
-            {name: 'Guns', like: false}
-        ]
-    });
-
-    Template.hello.events({
-        'click button': function () {
-            //Twitter.requestCredential();
-            Meteor.loginWithTwitter(function () {
-                Session.set('userId', Accounts.userId());
-                Meteor.call('getFollowers', function (err, result) {
-                    console.log(JSON.stringify(err));
-                    console.log(result.data);
-                });
-            });
-        }
-    });
 }
 
 if (Meteor.isServer) {
 
     var twitter = new TwitterApi();
     var natural = Meteor.npmRequire('natural');
+    var TfIdf = natural.TfIdf;
+    var sentiment = Meteor.npmRequire('sentiment');
 
     Meteor.startup(function () {
         Accounts.loginServiceConfiguration.remove({
@@ -81,9 +79,47 @@ if (Meteor.isServer) {
         });
     });
 
+    var MAX_ITEMS_PER_CATEGORY = 5;
+
     Meteor.methods({
-        getFollowers: function () {
-            return twitter.get('followers/ids.json');
+        getInterests: function (screenName) {
+            var recentTweets = twitter.get('statuses/user_timeline.json', {screen_name: screenName, count: 20});
+            var tfidf = new TfIdf();
+
+            var tweetText = recentTweets.data.map(function (tweet) {
+                if (tweet.text) {
+                    var matchQuoated = tweet.text.match(/^"(.+)"/m);
+                    return (matchQuoated) ? matchQuoated[1] : tweet.text;
+                }
+            });
+
+            tfidf.addDocument(tweetText.reduce(function (acc, next) {
+                return acc + ' ' + next;
+            }, ''));
+
+            var wordImportance = tfidf.listTerms(0);
+
+            var positiveWords = [];
+            var negativeWords = [];
+
+            tweetText.forEach(function (text) {
+                var sentimentAnalysis = sentiment(text);
+                positiveWords = positiveWords.concat(sentimentAnalysis.positive);
+                negativeWords = negativeWords.concat(sentimentAnalysis.negative);
+            });
+
+            var topPositiveWords = [];
+            var topNegativeWords = [];
+
+            wordImportance.forEach(function (importance) {
+                if (topPositiveWords.length < MAX_ITEMS_PER_CATEGORY && positiveWords.indexOf(importance.term) != -1)
+                    topPositiveWords.push(importance.term);
+
+                if (topNegativeWords.length < MAX_ITEMS_PER_CATEGORY && negativeWords.indexOf(importance.term) != -1)
+                    topNegativeWords.push(importance.term);
+            });
+
+            return {topPositiveWords: topPositiveWords, topNegativeWords: topNegativeWords};
         },
         getUser: function (screenName) {
             return twitter.get('users/show.json', {screen_name: screenName});
