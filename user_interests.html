@@ -1,0 +1,65 @@
+<head>
+    <title>managefollowers</title>
+</head>
+
+<body>
+</body>
+
+<template name="login">
+    userid: ( {{userId}} )
+    <button id="twitter-login">Twitter Login</button>
+</template>
+
+<template name="user_interests">
+    <div class="row search-area">
+        <div class="large-2 columns"><br></div>
+        <div class="large-8 columns">
+            <div class="row">
+                <div class="large-9 columns search-box">
+                    <input class="search-field" type="text" placeholder="Enter Screen Name">
+                </div>
+                <div class="large-3 columns go-button-column">
+                    <button class="go-button">GO!</button>
+                </div>
+            </div>
+            <div class="row">
+                {{> yield}}
+            </div>
+        </div>
+        <div class="large-2 columns"><br></div>
+    </div>
+</template>
+
+<template name="message">
+    <br>
+    <h3>{{message}}</h3>
+</template>
+
+<template name="search_found_user">
+    <div class="large-12 columns search_found_user_area">
+        <div class="row">
+            <div class="large-9 columns profile-name"><a href="" target="_blank" class="profile-name">{{userName}}</a></div>
+            <div class="large-3 columns">
+                <div class=" profile-picture">
+                    <img src="{{imageUrl}}" alt="">
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            {{#each interests}}
+                {{#if like}}
+                    <div class="interest">
+                        <div class="large-6 columns">Likes</div>
+                        <div class="large-6 columns name">{{name}}</div>
+                    </div>
+                {{else}}
+                    <div class="interest dislike">
+                        <div class="large-6 columns">Dislikes</div>
+                        <div class="large-6 columns name">{{name}}</div>
+                    </div>
+                {{/if}}
+            {{/each}}
+        </div>
+    </div>
+</template>
