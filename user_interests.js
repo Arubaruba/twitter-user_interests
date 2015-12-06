@@ -25,15 +25,21 @@ Router.route('/user/:screenName', function () {
         if (err) {
             self.render('message', {data: {message: 'User data for user \"' + screenName + '\" couldn\'t be retrieved.'}});
         } else if (results.interestData.topPositiveWords.length == 0 && results.interestData.topNegativeWords.length == 0) {
-            self.render('message', {data: {message: 'No data for user \"' + screenName + '\"'}});
+            self.render('message', {data: {message: 'No data for user \"' + screenName + '\". Are you sure this account has tweets?'}});
         } else {
+            function addLinkToInterest(interest) {
+                interest.link = 'https://twitter.com/search?f=tweets&q=' + encodeURIComponent(interest.term) + '%20from%3A' + encodeURIComponent(screenName) + '&src=typd';
+                return interest;
+            }
+
             self.render('search_found_user', {
                 data: {
                     userName: results.userData.data.name,
                     profileImage: results.userData.data.profile_image_url.replace('_normal', '_400x400'),
                     profileLink: 'https://twitter.com/' + screenName,
-                    positiveInterests: results.interestData.topPositiveWords,
-                    negativeInterests: results.interestData.topNegativeWords
+                    positiveInterests: results.interestData.topPositiveWords.map(addLinkToInterest),
+                    negativeInterests: results.interestData.topNegativeWords.map(addLinkToInterest),
+                    screenName: screenName
                 }
             });
 
