@@ -83,6 +83,15 @@ if (Meteor.isClient) {
         }
     }
 
+    Template.login.events({
+       "click button": function () {
+           Meteor.loginWithTwitter(function () {
+               console.log('successfully auth user: ' + Meteor.userId());
+               Router.go('/');
+           });
+       }
+    });
+
     Template.user_interests.events ({
         "click .go-button": function (target) {
             target.preventDefault();
