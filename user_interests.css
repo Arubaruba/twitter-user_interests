@@ -99,10 +99,31 @@ body {
 }
 
 .interest .name {
+    text-decoration: underline;
     font-weight: bold;
 }
 
 .interest.dislike {
     background: #d5c3a9;
+}
+
+.search-suggestions {
+    position: absolute;
+    background: #fff;
+    border: 1px solid #ccc;
+    padding: 0;
+    top: 65px;
+    z-index: 3;
+    display:none;
+}
+
+.search-suggestion {
+    display: block;
+    padding: 15px;
+}
+
+.search-suggestion:hover {
+    color: #fff;
+    background-color: #078cea;
 }
 

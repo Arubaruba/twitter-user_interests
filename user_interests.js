@@ -50,6 +50,14 @@ Router.route('/user/:screenName', function () {
 });
 
 if (Meteor.isClient) {
+    Session.setDefault('searchSuggestions', []);
+
+    Template.user_interests.helpers({
+        searchSuggestions: function () {
+            return Session.get('searchSuggestions');
+        }
+    });
+
     Template.user_interests.events ({
         "click .go-button": function (target) {
             target.preventDefault();
@@ -59,12 +67,27 @@ if (Meteor.isClient) {
             } else {
                 alert('Field cannot be empty!')
             }
-        }
-    });
-
-    Template.user_interests.helpers({
-        searchUserNameInput: function () {
-            return Session.get('searchUserNameInput');
+        },
+        "input .search-field": function () {
+            var searchSuggestions = $('.search-suggestions');
+            var searchValue = $('.search-field').val();
+            Meteor.call('getUserQuerySuggestions', searchValue, function (err, results) {
+                Session.set('searchSuggestions', results.map(function (result) {
+                    return {name: result.name, href: '/user/' + result.screen_name};
+                }));
+            });
+            if (searchValue != '') {
+                searchSuggestions.show();
+                searchSuggestions.focusin();
+            } else {
+                searchSuggestions.hide();
+            }
+        },
+        //"blur .search-field": function () {
+        //    $('.search-suggestions').hide();
+        //},
+        "focus .search-field": function () {
+            $('.search-suggestions').show();
         }
     });
 }
@@ -94,6 +117,7 @@ if (Meteor.isServer) {
 
     var MAX_ITEMS_PER_CATEGORY = 10;
     var NUM_TWEETS_TO_SCAN = 30;
+    var SUGGESTED_SEARCH_USERS = 4;
 
     Meteor.methods({
         getInterests: function (screenName) {
@@ -160,6 +184,10 @@ if (Meteor.isServer) {
         },
         getUser: function (screenName) {
             return twitter.get('users/show.json', {screen_name: screenName});
+        },
+        getUserQuerySuggestions: function (query) {
+            // We need to log in with twitter to search users
+            return twitter.get('users/search.json', {q: query, count: SUGGESTED_SEARCH_USERS}).data;
         }
     })
 }

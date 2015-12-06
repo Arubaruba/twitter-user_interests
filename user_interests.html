@@ -15,17 +15,21 @@
 </template>
 
 <template name="user_interests">
-
-
     <div>
         <div class="large-2 columns"><br></div>
         <div class="large-8 columns">
-            <div class="row"><h1 class="app-title">Twitter <i>TLDR;</i></h1>
+            <div class="row"><h1 class="app-title">Twitter <i>TL;DR</i></h1>
 
                 <div class="app-description">Get a quick overview of recent Tweets</div>
                 <form action="">
                     <div class="large-9 columns search-box">
                         <input class="search-field" type="text" placeholder="Enter Twitter Username">
+
+                        <div class="search-suggestions">
+                            {{#each searchSuggestions}}
+                                <a href={{href}} class="search-suggestion">{{name}}</a>
+                            {{/each}}
+                        </div>
                     </div>
                     <div class="large-3 columns go-button-column">
                         <button type="submit" class="go-button">GO!</button>
@@ -48,13 +52,14 @@
 
 <template name="search_found_user">
     <br>
+
     <div class="large-12 columns search_found_user">
         <div class="row search_found_user_area">
             <div class="large-6 columns">
                 <div class="row interest-title">Positive</div>
                 {{#each positiveInterests}}
                     <div class="row interest">
-                        <div class="large-10 columns name"><a target="_blank" href={{link}}>{{term}}</a> ({{occurrences}})</div>
+                        <div class="large-10 columns name"><a target="_blank" href={{link}}>{{term}}</a></div>
                     </div>
                 {{/each}}
             </div>
@@ -62,7 +67,7 @@
                 <div class="row interest-title">Negative</div>
                 {{#each negativeInterests}}
                     <div class="row interest dislike">
-                        <div class="large-10 columns name"><a target="_blank" href={{link}}>{{term}}</a> ({{occurrences}})</div>
+                        <div class="large-10 columns"><a class="name" target="_blank" href={{link}}>{{term}}</a></div>
                     </div>
                 {{/each}}
             </div>
