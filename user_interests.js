@@ -12,6 +12,9 @@ Router.route('/user/:screenName', function () {
     this.layout('user_interests');
     var self = this;
 
+
+    $('.search-suggestions').hide();
+
     async.parallel({
         userData: function (callback) {
             // Try to get users' data by screen name
@@ -22,6 +25,7 @@ Router.route('/user/:screenName', function () {
             Meteor.call('getInterests', screenName, callback);
         }
     }, function (err, results) {
+        $('.search-field').val(screenName);
         if (err) {
             self.render('message', {data: {message: 'User data for user \"' + screenName + '\" couldn\'t be retrieved.'}});
         } else if (results.interestData.topPositiveWords.length == 0 && results.interestData.topNegativeWords.length == 0) {
@@ -46,10 +50,13 @@ Router.route('/user/:screenName', function () {
 
         }
     });
-    self.render('message', {data: {message: 'Getting user data for user \"' + screenName + '\"'}});
+    self.render('message', {data: {message: 'Getting user data for \"' + screenName + '\"'}});
 });
 
 if (Meteor.isClient) {
+
+    SEARCHED_VAL = '';
+
     Session.setDefault('searchSuggestions', []);
 
     Template.user_interests.helpers({
@@ -57,6 +64,24 @@ if (Meteor.isClient) {
             return Session.get('searchSuggestions');
         }
     });
+
+    LOCK_SEARCH_QUERY = false;
+
+    function updateSearchSuggestions() {
+        if (SEARCHED_VAL != $('.search-field').val() && !LOCK_SEARCH_QUERY) {
+            LOCK_SEARCH_QUERY = true;
+            Meteor.call('getUserQuerySuggestions', $('.search-field').val(), function (err, results) {
+                if (results) {
+                    Session.set('searchSuggestions', results.map(function (result) {
+                        return {name: result.name, href: '/user/' + result.screen_name, screenName: result.screen_name};
+                    }));
+                }
+
+                LOCK_SEARCH_QUERY = false;
+                if (SEARCHED_VAL != $('.search-field').val()) updateSearchSuggestions();
+            });
+        }
+    }
 
     Template.user_interests.events ({
         "click .go-button": function (target) {
@@ -71,17 +96,16 @@ if (Meteor.isClient) {
         "input .search-field": function () {
             var searchSuggestions = $('.search-suggestions');
             var searchValue = $('.search-field').val();
-            Meteor.call('getUserQuerySuggestions', searchValue, function (err, results) {
-                Session.set('searchSuggestions', results.map(function (result) {
-                    return {name: result.name, href: '/user/' + result.screen_name};
-                }));
-            });
             if (searchValue != '') {
+                updateSearchSuggestions();
                 searchSuggestions.show();
                 searchSuggestions.focusin();
             } else {
                 searchSuggestions.hide();
             }
+        },
+        "blur .search-suggestions": function () {
+            $('.search-suggestions').hide();
         },
         //"blur .search-field": function () {
         //    $('.search-suggestions').hide();
